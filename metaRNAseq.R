@@ -1,0 +1,41 @@
+install.packages("metaRNASeq")
+BiocManager::install("HTSFilter")
+library(DESeq2)
+library(metaRNASeq)
+library(HTSFilter)
+#conbine p value
+rawpval1 <- as.data.frame(read.table("medaka_adjval.csv",sep=",", header=TRUE, row.names=1))
+dim(rawpval1)
+head(rawpval1)
+fishcomb <- fishercomb(rawpval1, BHth = 0.05)
+fishcomb_pval <- as.data.frame(fishcomb$adjpval)
+dim(fishcomb_pval)
+write.csv(as.data.frame(fishcomb_pval),file = "medaka_fishcomb_adjval.csv")
+#average log2foldchange
+rawpval2 <- as.data.frame(read.table("medaka_FCR.csv",sep=",",header=TRUE, row.names=1))
+b <- rowMeans(rawpval2)
+write.csv(as.data.frame(b),file = "b.csv")
+#filter
+combine_adival <- as.data.frame(read.table("Mfisher_combine.csv",sep=",", header=TRUE, row.names=1))
+combine_adival_filtered <- filter(combine_adival,abs(average_log2FoldChange)>1 & adjpval<0.05)
+dim(combine_adival_filtered)
+write.csv(as.data.frame(combine_adival_filtered),file = "combine2_adival_filtered.csv")
+
+#same for zebrafish
+rawpval2 <- as.data.frame(read.table("zebrafish_adpval.csv",sep=",", header=TRUE, row.names=1))
+dim(rawpval2)
+head(rawpval2)
+fishcomb2 <- fishercomb(rawpval2, BHth = 0.05)
+fishcomb_pval2 <- as.data.frame(fishcomb2$adjpval)
+dim(fishcomb_pval2)
+write.csv(as.data.frame(fishcomb_pval2),file = "fishcomb_adjval.csv")
+
+library(dplyr)
+combine_adival <- as.data.frame(read.table("Zfishcomb_adjval.csv",sep=",", header=TRUE, row.names=1))
+combine_adival_filtered <- filter(combine_adival,abs(average_log2FoldChange)>2.5 & adjpval<0.05)
+dim(combine_adival_filtered)
+write.csv(as.data.frame(combine_adival_filtered),file = "combine_adival_filtered.csv")
+
+rawpval2 <- as.data.frame(read.table("zebrafish_FCR.csv",sep=",",header=TRUE, row.names=1))
+a <- rowMeans(rawpval2)
+write.csv(as.data.frame(a),file = "a.csv")
